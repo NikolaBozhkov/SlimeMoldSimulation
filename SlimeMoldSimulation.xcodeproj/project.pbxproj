@@ -22,6 +22,22 @@
 		2484AA862625223400D4DA2C /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = 2484AA5E2625222A00D4DA2C /* ShaderTypes.h */; };
 		2484AA872625223400D4DA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2484AA5F2625223400D4DA2C /* Assets.xcassets */; };
 		2484AA882625223400D4DA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2484AA5F2625223400D4DA2C /* Assets.xcassets */; };
+		2484AAA2262528DD00D4DA2C /* GlobalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA96262528DD00D4DA2C /* GlobalHelpers.swift */; };
+		2484AAA3262528DD00D4DA2C /* GlobalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA96262528DD00D4DA2C /* GlobalHelpers.swift */; };
+		2484AAA4262528DD00D4DA2C /* SKColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA98262528DD00D4DA2C /* SKColor+Extensions.swift */; };
+		2484AAA5262528DD00D4DA2C /* SKColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA98262528DD00D4DA2C /* SKColor+Extensions.swift */; };
+		2484AAA6262528DD00D4DA2C /* SKAction+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA99262528DD00D4DA2C /* SKAction+Extensions.swift */; };
+		2484AAA7262528DD00D4DA2C /* SKAction+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA99262528DD00D4DA2C /* SKAction+Extensions.swift */; };
+		2484AAA8262528DD00D4DA2C /* CGSize+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9A262528DD00D4DA2C /* CGSize+Extensions.swift */; };
+		2484AAA9262528DD00D4DA2C /* CGSize+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9A262528DD00D4DA2C /* CGSize+Extensions.swift */; };
+		2484AAAC262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9C262528DD00D4DA2C /* CGPoint+Extensions.swift */; };
+		2484AAAD262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9C262528DD00D4DA2C /* CGPoint+Extensions.swift */; };
+		2484AAAE262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */; };
+		2484AAAF262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */; };
+		2484AAB2262528DD00D4DA2C /* MathLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9F262528DD00D4DA2C /* MathLibrary.swift */; };
+		2484AAB3262528DD00D4DA2C /* MathLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9F262528DD00D4DA2C /* MathLibrary.swift */; };
+		2484AAB926252D1900D4DA2C /* BufferFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AAB826252D1800D4DA2C /* BufferFormats.swift */; };
+		2484AABA26252D1900D4DA2C /* BufferFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AAB826252D1800D4DA2C /* BufferFormats.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +57,14 @@
 		2484AA7D2625223400D4DA2C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2484AA7F2625223400D4DA2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2484AA802625223400D4DA2C /* SlimeMoldSimulation_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlimeMoldSimulation_macOS.entitlements; sourceTree = "<group>"; };
+		2484AA96262528DD00D4DA2C /* GlobalHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalHelpers.swift; sourceTree = "<group>"; };
+		2484AA98262528DD00D4DA2C /* SKColor+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SKColor+Extensions.swift"; sourceTree = "<group>"; };
+		2484AA99262528DD00D4DA2C /* SKAction+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SKAction+Extensions.swift"; sourceTree = "<group>"; };
+		2484AA9A262528DD00D4DA2C /* CGSize+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGSize+Extensions.swift"; sourceTree = "<group>"; };
+		2484AA9C262528DD00D4DA2C /* CGPoint+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGPoint+Extensions.swift"; sourceTree = "<group>"; };
+		2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NotificationName+Extensions.swift"; sourceTree = "<group>"; };
+		2484AA9F262528DD00D4DA2C /* MathLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathLibrary.swift; sourceTree = "<group>"; };
+		2484AAB826252D1800D4DA2C /* BufferFormats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferFormats.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,7 +100,9 @@
 			children = (
 				2484AA5C2625222A00D4DA2C /* Shaders.metal */,
 				2484AA5D2625222A00D4DA2C /* Renderer.swift */,
+				2484AAB826252D1800D4DA2C /* BufferFormats.swift */,
 				2484AA5E2625222A00D4DA2C /* ShaderTypes.h */,
+				2484AA94262528DD00D4DA2C /* Utlity */,
 				2484AA5F2625223400D4DA2C /* Assets.xcassets */,
 			);
 			path = "SlimeMoldSimulation Shared";
@@ -113,6 +139,28 @@
 				2484AA802625223400D4DA2C /* SlimeMoldSimulation_macOS.entitlements */,
 			);
 			path = "SlimeMoldSimulation macOS";
+			sourceTree = "<group>";
+		};
+		2484AA94262528DD00D4DA2C /* Utlity */ = {
+			isa = PBXGroup;
+			children = (
+				2484AA96262528DD00D4DA2C /* GlobalHelpers.swift */,
+				2484AA97262528DD00D4DA2C /* Extensions */,
+				2484AA9F262528DD00D4DA2C /* MathLibrary.swift */,
+			);
+			path = Utlity;
+			sourceTree = "<group>";
+		};
+		2484AA97262528DD00D4DA2C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				2484AA98262528DD00D4DA2C /* SKColor+Extensions.swift */,
+				2484AA99262528DD00D4DA2C /* SKAction+Extensions.swift */,
+				2484AA9A262528DD00D4DA2C /* CGSize+Extensions.swift */,
+				2484AA9C262528DD00D4DA2C /* CGPoint+Extensions.swift */,
+				2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -217,8 +265,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2484AAB926252D1900D4DA2C /* BufferFormats.swift in Sources */,
+				2484AAA2262528DD00D4DA2C /* GlobalHelpers.swift in Sources */,
+				2484AAB2262528DD00D4DA2C /* MathLibrary.swift in Sources */,
+				2484AAA4262528DD00D4DA2C /* SKColor+Extensions.swift in Sources */,
+				2484AAA6262528DD00D4DA2C /* SKAction+Extensions.swift in Sources */,
+				2484AAA8262528DD00D4DA2C /* CGSize+Extensions.swift in Sources */,
 				2484AA832625223400D4DA2C /* Renderer.swift in Sources */,
+				2484AAAC262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */,
 				2484AA812625223400D4DA2C /* Shaders.metal in Sources */,
+				2484AAAE262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */,
 				2484AA6A2625223400D4DA2C /* GameViewController.swift in Sources */,
 				2484AA682625223400D4DA2C /* AppDelegate.swift in Sources */,
 			);
@@ -228,8 +284,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2484AABA26252D1900D4DA2C /* BufferFormats.swift in Sources */,
+				2484AAA3262528DD00D4DA2C /* GlobalHelpers.swift in Sources */,
+				2484AAB3262528DD00D4DA2C /* MathLibrary.swift in Sources */,
+				2484AAA5262528DD00D4DA2C /* SKColor+Extensions.swift in Sources */,
+				2484AAA7262528DD00D4DA2C /* SKAction+Extensions.swift in Sources */,
+				2484AAA9262528DD00D4DA2C /* CGSize+Extensions.swift in Sources */,
 				2484AA842625223400D4DA2C /* Renderer.swift in Sources */,
+				2484AAAD262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */,
 				2484AA822625223400D4DA2C /* Shaders.metal in Sources */,
+				2484AAAF262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */,
 				2484AA7B2625223400D4DA2C /* GameViewController.swift in Sources */,
 				2484AA792625223400D4DA2C /* AppDelegate.swift in Sources */,
 			);
@@ -384,7 +448,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XZT6P8DQ87;
 				INFOPLIST_FILE = "SlimeMoldSimulation iOS/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -406,7 +470,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XZT6P8DQ87;
 				INFOPLIST_FILE = "SlimeMoldSimulation iOS/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
