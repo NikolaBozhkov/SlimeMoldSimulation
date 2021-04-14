@@ -13,7 +13,7 @@ class GameViewController: NSViewController {
 
     var renderer: Renderer!
     var mtkView: MTKView!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

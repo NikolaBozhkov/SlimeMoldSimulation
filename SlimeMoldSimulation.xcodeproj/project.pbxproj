@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		24514A8226272D1C00D480F5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A7D26272D1C00D480F5 /* SettingsView.swift */; };
+		24514A8326272D1C00D480F5 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A7E26272D1C00D480F5 /* UIView+Extensions.swift */; };
+		24514A8426272D1C00D480F5 /* SliderBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A7F26272D1C00D480F5 /* SliderBox.swift */; };
+		24514A8526272D1C00D480F5 /* CoreAnimation+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A8026272D1C00D480F5 /* CoreAnimation+Extensions.swift */; };
+		24514A8626272D1C00D480F5 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A8126272D1C00D480F5 /* Button.swift */; };
+		24514A8A262738CD00D480F5 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24514A89262738CD00D480F5 /* UIColor+Extensions.swift */; };
 		2484AA682625223400D4DA2C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA672625223400D4DA2C /* AppDelegate.swift */; };
 		2484AA6A2625223400D4DA2C /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA692625223400D4DA2C /* GameViewController.swift */; };
 		2484AA6D2625223400D4DA2C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2484AA6B2625223400D4DA2C /* Main.storyboard */; };
@@ -41,6 +47,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		24514A7D26272D1C00D480F5 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		24514A7E26272D1C00D480F5 /* UIView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		24514A7F26272D1C00D480F5 /* SliderBox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SliderBox.swift; sourceTree = "<group>"; };
+		24514A8026272D1C00D480F5 /* CoreAnimation+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CoreAnimation+Extensions.swift"; sourceTree = "<group>"; };
+		24514A8126272D1C00D480F5 /* Button.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
+		24514A89262738CD00D480F5 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		2484AA5C2625222A00D4DA2C /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		2484AA5D2625222A00D4DA2C /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		2484AA5E2625222A00D4DA2C /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
@@ -85,6 +97,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24514A7C26272D1C00D480F5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				24514A89262738CD00D480F5 /* UIColor+Extensions.swift */,
+				24514A7D26272D1C00D480F5 /* SettingsView.swift */,
+				24514A7E26272D1C00D480F5 /* UIView+Extensions.swift */,
+				24514A7F26272D1C00D480F5 /* SliderBox.swift */,
+				24514A8026272D1C00D480F5 /* CoreAnimation+Extensions.swift */,
+				24514A8126272D1C00D480F5 /* Button.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		2484AA562625222A00D4DA2C = {
 			isa = PBXGroup;
 			children = (
@@ -120,6 +145,7 @@
 		2484AA662625223400D4DA2C /* SlimeMoldSimulation iOS */ = {
 			isa = PBXGroup;
 			children = (
+				24514A7C26272D1C00D480F5 /* Views */,
 				2484AA672625223400D4DA2C /* AppDelegate.swift */,
 				2484AA692625223400D4DA2C /* GameViewController.swift */,
 				2484AA6B2625223400D4DA2C /* Main.storyboard */,
@@ -265,18 +291,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24514A8326272D1C00D480F5 /* UIView+Extensions.swift in Sources */,
 				2484AAB926252D1900D4DA2C /* BufferFormats.swift in Sources */,
 				2484AAA2262528DD00D4DA2C /* GlobalHelpers.swift in Sources */,
 				2484AAB2262528DD00D4DA2C /* MathLibrary.swift in Sources */,
 				2484AAA4262528DD00D4DA2C /* SKColor+Extensions.swift in Sources */,
 				2484AAA6262528DD00D4DA2C /* SKAction+Extensions.swift in Sources */,
 				2484AAA8262528DD00D4DA2C /* CGSize+Extensions.swift in Sources */,
+				24514A8A262738CD00D480F5 /* UIColor+Extensions.swift in Sources */,
 				2484AA832625223400D4DA2C /* Renderer.swift in Sources */,
+				24514A8426272D1C00D480F5 /* SliderBox.swift in Sources */,
 				2484AAAC262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */,
 				2484AA812625223400D4DA2C /* Shaders.metal in Sources */,
 				2484AAAE262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */,
 				2484AA6A2625223400D4DA2C /* GameViewController.swift in Sources */,
+				24514A8526272D1C00D480F5 /* CoreAnimation+Extensions.swift in Sources */,
 				2484AA682625223400D4DA2C /* AppDelegate.swift in Sources */,
+				24514A8226272D1C00D480F5 /* SettingsView.swift in Sources */,
+				24514A8626272D1C00D480F5 /* Button.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

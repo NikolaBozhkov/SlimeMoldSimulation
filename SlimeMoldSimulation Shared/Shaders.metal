@@ -110,45 +110,38 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
                         uint gid [[thread_position_in_grid]])
 {
     const float sensorAngleOffset = M_PI_F / 6.2;
-    const float turnRate = M_PI_F * 2.0 * 2.0;
         
     Agent agent = agents[gid];
     float weightLeft = sense(agent, sensorAngleOffset, slimeTexture);
     float weightRight = sense(agent, -sensorAngleOffset, slimeTexture);
     float weightForward = sense(agent, 0, slimeTexture);
     
-//    float randomSteerStrength = hash01(agent.position.y * slimeTexture.get_width() + agent.position.x + hash(gid + uniforms.time * 100000.0));
-//    float turnSpeed = 2.0 * 2.0 * M_PI_F;
+    float randomSteerStrength = hash01(agent.position.y * slimeTexture.get_width() + agent.position.x + hash(gid + uniforms.time * 100000.0));
+    float turnRate = 0.5 * 2.0 * M_PI_F;
+
+    if (weightForward > weightLeft && weightForward > weightRight) {
+        agents[gid].angle += 0;
+    }
+    else if (weightForward < weightLeft && weightForward < weightRight) {
+        agents[gid].angle += (randomSteerStrength - 0.5) * 2 * turnRate * uniforms.deltaTime;
+    }
+    else if (weightRight > weightLeft) {
+        agents[gid].angle -= randomSteerStrength * turnRate * uniforms.deltaTime;
+    }
+    else if (weightLeft > weightRight) {
+        agents[gid].angle += randomSteerStrength * turnRate * uniforms.deltaTime;
+    }
+    
+//    float forwardBest = step(max(weightLeft, weightRight) + 0.000001, weightForward);
+//    float leftBest = (1.0 - forwardBest) * step(weightRight + 0.000001, weightLeft);
+//    float rightBest = (1.0 - forwardBest) * step(weightLeft + 0.000001, weightRight);
 //
-//    // Continue in same direction
-//    if (weightForward > weightLeft && weightForward > weightRight) {
-//        agents[gid].angle += 0;
-//    }
-//    else if (weightForward < weightLeft && weightForward < weightRight) {
-//        agents[gid].angle += (randomSteerStrength - 0.5) * 2 * turnSpeed * uniforms.deltaTime;
-//    }
-//    // Turn right
-//    else if (weightRight > weightLeft) {
-//        agents[gid].angle -= randomSteerStrength * turnSpeed * uniforms.deltaTime;
-//    }
-//    // Turn left
-//    else if (weightLeft > weightRight) {
-//        agents[gid].angle += randomSteerStrength * turnSpeed * uniforms.deltaTime;
-//    }
-    
-    float forwardBest = step(max(weightLeft, weightRight) + 0.000001, weightForward);
-    float leftBest = (1.0 - forwardBest) * step(weightRight + 0.000001, weightLeft);
-    float rightBest = (1.0 - forwardBest) * step(weightLeft + 0.000001, weightRight);
-
-    float randomTurn = step(weightForward + 0.000001, weightLeft) * step(weightForward + 0.000001, weightRight);
-
-    float rand = hash01(agent.position.y * slimeTexture.get_width() + agent.position.x + hash(gid + uniforms.time * 100000.0));
-
-    float turn = leftBest * turnRate * uniforms.deltaTime + rightBest * -turnRate * uniforms.deltaTime;
-    agents[gid].angle += turn * mix(1.0, rand, 1.0) * (1.0 - randomTurn) + randomTurn * (rand - 0.5) * 2.0 * turnRate * uniforms.deltaTime;
-    
-//    float randomTurn1 = step(max(max(intensityLeft, intensityRight), intensityForward), hash01(gid));
-//    agent.angle += randomTurn1 * turnRate * (hash01(gid) - 0.5) * 2.0;
+//    float randomTurn = step(weightForward + 0.000001, weightLeft) * step(weightForward + 0.000001, weightRight);
+//
+//    float rand = hash01(agent.position.y * slimeTexture.get_width() + agent.position.x + hash(gid + uniforms.time * 100000.0));
+//
+//    float turn = leftBest * -turnRate * uniforms.deltaTime + rightBest * turnRate * uniforms.deltaTime;
+//    agents[gid].angle += turn * mix(1.0, rand, 1.0) * (1.0 - randomTurn) + randomTurn * (rand - 0.5) * 2.0 * turnRate * uniforms.deltaTime;
 
     float2 direction = float2(cos(agents[gid].angle), sin(agents[gid].angle));
     float2 newPosition = agent.position + direction * uniforms.moveSpeed * uniforms.deltaTime;
@@ -156,8 +149,8 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
     
     agents[gid].position = newPosition;
     
-    float4 color = float4(0.2, 0.75, 0.4, 1.0);
-    float4 newTrail = slimeTexture.read(uint2(newPosition)) + color * 5.0 * uniforms.deltaTime;
+    float4 color = float4(1.0);
+    float4 newTrail = slimeTexture.read(uint2(newPosition)) + color * 6.0 * uniforms.deltaTime;
     slimeTexture.write(min(1.0, newTrail), uint2(newPosition));
 }
 

@@ -9,10 +9,12 @@ import UIKit
 import MetalKit
 
 // Our iOS specific view controller
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, SettingsViewDelegate {
 
     var renderer: Renderer!
     var mtkView: MTKView!
+    
+    @IBOutlet weak var settingsView: SettingsView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,8 +43,26 @@ class GameViewController: UIViewController {
         renderer.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
 
         mtkView.delegate = renderer
+        
+        initUI()
     }
     
     override var prefersStatusBarHidden: Bool { true }
     override var prefersHomeIndicatorAutoHidden: Bool { true }
+    
+    private func initUI() {
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let location = touches.first!.location(in: view)
+        
+        let triggerSize: CGFloat = 150
+        if location.x < triggerSize && location.y < triggerSize {
+            settingsView.isHidden = !settingsView.isHidden
+        }
+    }
+    
+    func invalidateSettings() {
+        
+    }
 }

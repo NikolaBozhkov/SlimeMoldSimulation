@@ -48,7 +48,7 @@ class Renderer: NSObject {
     var diffusePipelineState: MTLComputePipelineState
     var slimeTexture: MTLTexture?
     
-    let agentCount: Int = 500000
+    let agentCount: Int = 250000
     var agentBuffer: MTLBuffer
     
     var projectionMatrix = matrix_float4x4()
