@@ -30,7 +30,16 @@ typedef struct
 {
     matrix_float4x4 projectionMatrix;
     simd_float2 screenSize;
+    float moveSpeed;
+    float deltaTime;
+    float time;
 } Uniforms;
+
+typedef struct
+{
+    simd_float2 position;
+    float angle;
+} Agent;
 
 #endif /* ShaderTypes_h */
 

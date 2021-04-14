@@ -42,4 +42,7 @@ class GameViewController: UIViewController {
 
         mtkView.delegate = renderer
     }
+    
+    override var prefersStatusBarHidden: Bool { true }
+    override var prefersHomeIndicatorAutoHidden: Bool { true }
 }
