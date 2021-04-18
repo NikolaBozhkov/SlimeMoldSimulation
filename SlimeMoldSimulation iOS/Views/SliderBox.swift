@@ -17,16 +17,17 @@ class SliderBox: UIView {
     
     private let fontSize: CGFloat = 15
     private let highlightColor = UIColor([1.0, 0.5, 0.188])
-    private let nonHighlightColor = UIColor(red: 1.0, green: 0.5, blue: 0.188, alpha: 0.7)
     private let transitionDuration: TimeInterval = 0.25
     
+    private let step: Float
+    private let format: String
     private let minValue: Float
     private let maxValue: Float
     private let defaultValue: Float
     private(set) var currentValue: Float {
         didSet {
             currentValue = simd_clamp(currentValue, minValue, maxValue)
-            valueLabel.text = String(format: "%.3f", currentValue)
+            valueLabel.text = String(format: format, currentValue)
             updateLineIndicatorPosition()
         }
     }
@@ -48,15 +49,19 @@ class SliderBox: UIView {
     lazy var pctIndicatorLine: UIView = {
         let line = UIView()
         line.translatesAutoresizingMaskIntoConstraints = false
-        line.backgroundColor = highlightColor
+        line.backgroundColor = highlightColor.withAlphaComponent(0.75)
         return line
     }()
     
-    init(label: String, minValue: Float, maxValue: Float, defaultValue: Float) {
+    init(label: String, minValue: Float, maxValue: Float, defaultValue: Float, format: String = "%.3f", step: Float = 0.0) {
         self.minValue = minValue
         self.maxValue = maxValue
         self.defaultValue = defaultValue
+        self.step = step
+        self.format = format
         currentValue = defaultValue
+        
+        let backgroundColor = UIColor(white: 1.0, alpha: 0.17)
         
         let borderColorAnim = CABasicAnimation(keyPath: "borderColor")
         borderColorAnim.fromValue = highlightColor.cgColor
@@ -64,7 +69,7 @@ class SliderBox: UIView {
         
         let backgroundColorAnim = CABasicAnimation(keyPath: "backgroundColor")
         backgroundColorAnim.fromValue = UIColor.clear.cgColor
-        backgroundColorAnim.toValue = UIColor(white: 1.0, alpha: 0.12).cgColor
+        backgroundColorAnim.toValue = backgroundColor.cgColor
         
         highlightAnimGroup = CAAnimationGroup()
         highlightAnimGroup.timingFunction = CAMediaTimingFunction(name: .easeOut)
@@ -81,10 +86,10 @@ class SliderBox: UIView {
         layer.cornerRadius = 5
         layer.borderWidth = 2
         layer.borderColor = UIColor.clear.cgColor
-        layer.backgroundColor = UIColor(white: 1.0, alpha: 0.12).cgColor
+        layer.backgroundColor = backgroundColor.cgColor
         
         self.label.text = label
-        valueLabel.text = String(format: "%.3f", currentValue)
+        valueLabel.text = String(format: format, currentValue)
         
         let stack = UIStackView(arrangedSubviews: [self.label, valueLabel])
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -131,7 +136,13 @@ class SliderBox: UIView {
         let touchPosition = touches.first!.location(in: self)
         let pctOffset = max(0.0, min(touchPosition.x / bounds.width, 1.0))
         
-        currentValue = minValue + Float(pctOffset) * (maxValue - minValue)
+        let newValue = minValue + Float(pctOffset) * (maxValue - minValue)
+        
+        if step == 0 {
+            currentValue = newValue
+        } else {
+            currentValue = round(newValue / step) * step
+        }
         
         delegate?.didUpdate()
     }
@@ -182,6 +193,10 @@ class SliderBox: UIView {
         
         animateLabel(label, isHighlighted: isOn)
         animateLabel(valueLabel, isHighlighted: isOn)
+        
+        UIView.animate(withDuration: transitionDuration, delay: 0, options: .curveEaseOut, animations: {
+            self.pctIndicatorLine.backgroundColor = isOn ? self.highlightColor : self.highlightColor.withAlphaComponent(0.75)
+        })
     }
     
     private func animateLabel(_ label: UILabel, isHighlighted: Bool) {

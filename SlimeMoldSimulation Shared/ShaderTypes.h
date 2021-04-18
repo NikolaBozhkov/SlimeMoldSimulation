@@ -30,9 +30,16 @@ typedef struct
 {
     matrix_float4x4 projectionMatrix;
     simd_float2 screenSize;
-    float moveSpeed;
     float deltaTime;
     float time;
+    float moveSpeed;
+    float sensorOffset;
+    float sensorAngleOffset;
+    float turnRate;
+    float diffuseRate;
+    float decayRate;
+    float sensorFlip;
+    simd_float4 color;
 } Uniforms;
 
 typedef struct

@@ -15,6 +15,7 @@ class GameViewController: UIViewController, SettingsViewDelegate {
     var mtkView: MTKView!
     
     @IBOutlet weak var settingsView: SettingsView!
+    @IBOutlet weak var fpsLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +34,8 @@ class GameViewController: UIViewController, SettingsViewDelegate {
         mtkView.device = defaultDevice
         mtkView.backgroundColor = UIColor.black
 
-        guard let newRenderer = Renderer(metalKitView: mtkView) else {
+        guard let newRenderer = Renderer(metalKitView: mtkView,
+                                         agentCount: Int(settingsView.agentCountSliderBox.currentValue)) else {
             print("Renderer cannot be initialized")
             return
         }
@@ -44,25 +46,57 @@ class GameViewController: UIViewController, SettingsViewDelegate {
 
         mtkView.delegate = renderer
         
-        initUI()
+        renderer.updateCurrentFps = { fps in
+            self.fpsLabel.text = "\(fps) FPS"
+        }
+        
+        settingsView.delegate = self
+        invalidateSettings()
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(restartSimulation))
+        tapGestureRecognizer.numberOfTouchesRequired = 2
+        view.addGestureRecognizer(tapGestureRecognizer)
+        
+        let tapGestureRecognizer1 = UITapGestureRecognizer(target: self, action: #selector(flipSensors))
+        tapGestureRecognizer1.numberOfTouchesRequired = 3
+        view.addGestureRecognizer(tapGestureRecognizer1)
     }
     
     override var prefersStatusBarHidden: Bool { true }
     override var prefersHomeIndicatorAutoHidden: Bool { true }
     
-    private func initUI() {
-    }
-    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let location = touches.first!.location(in: view)
+        let locationInSettings = touches.first!.location(in: settingsView)
         
         let triggerSize: CGFloat = 150
-        if location.x < triggerSize && location.y < triggerSize {
-            settingsView.isHidden = !settingsView.isHidden
+        if settingsView.isHidden && location.x < triggerSize {
+            settingsView.isHidden = false
+        } else if !settingsView.isHidden && !settingsView.bounds.contains(locationInSettings) {
+            settingsView.isHidden = true
         }
     }
     
+    @objc func restartSimulation() {
+        renderer.restartSimulation(agentCount: Int(settingsView.agentCountSliderBox.currentValue))
+    }
+    
+    @objc func flipSensors() {
+        renderer.settings.sensorFlip = -renderer.settings.sensorFlip
+    }
+    
     func invalidateSettings() {
-        
+        renderer.settings.simulationSteps = Int(settingsView.simulationStepsSliderBox.currentValue)
+        renderer.settings.moveSpeed = settingsView.moveSpeedSliderBox.currentValue
+        renderer.settings.sensorOffset = settingsView.sensorOffsetSliderBox.currentValue
+        renderer.settings.sensorAngleOffset = .pi * settingsView.sensorAngleOffsetSliderBox.currentValue / 180
+        renderer.settings.turnRate = settingsView.turnRateSliderBox.currentValue
+//        renderer.settings.depositRate = settingsView.depositRateSliderBox.currentValue
+        renderer.settings.diffuseRate = settingsView.diffuseRateSliderBox.currentValue
+        renderer.settings.decayRate = settingsView.decayRateSliderBox.currentValue
+        renderer.settings.color = [settingsView.colorRSliderBox.currentValue,
+                                   settingsView.colorGSliderBox.currentValue,
+                                   settingsView.colorBSliderBox.currentValue,
+                                   1.0] * settingsView.colorASliderBox.currentValue
     }
 }

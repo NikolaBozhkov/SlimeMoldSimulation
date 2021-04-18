@@ -27,6 +27,19 @@ let alignedUniformsSize = (MemoryLayout<Uniforms>.size + 0xFF) & -0x100
 
 let maxBuffersInFlight = 3
 
+struct Settings {
+    var agentCount: Int = 7000000
+    var simulationSteps: Int = 1
+    var moveSpeed: Float = 60
+    var sensorOffset: Float = 35
+    var sensorAngleOffset: Float = 32
+    var turnRate: Float = 2.0
+    var diffuseRate: Float = 8.0
+    var decayRate: Float = 0.7
+    var sensorFlip: Float = 1
+    var color: simd_float4 = [1, 1, 1, 0.005]
+}
+
 class Renderer: NSObject {
     
     let device: MTLDevice
@@ -44,12 +57,16 @@ class Renderer: NSObject {
     
     var prevTime: Float = 0
     
+    var agentInitPipelineState: MTLComputePipelineState
     var slimePipelineState: MTLComputePipelineState
     var diffusePipelineState: MTLComputePipelineState
     var slimeTexture: MTLTexture?
     
-    let agentCount: Int = 250000
     var agentBuffer: MTLBuffer
+    
+    var needsToInitAgents = true
+    
+    var settings = Settings()
     
     var projectionMatrix = matrix_float4x4()
     var screenSize: simd_float2 = .zero
@@ -57,7 +74,11 @@ class Renderer: NSObject {
     var timeSinceLastResize: Float = 100
     var isLoaded = false
     
-    init?(metalKitView: MTKView) {
+    var timeSinceLastFpsUpdate: Float = 0.0
+    var currentFps: Int = 0
+    var updateCurrentFps: ((Int) -> Void)?
+    
+    init?(metalKitView: MTKView, agentCount: Int) {
         guard
             let device = metalKitView.device,
             let library = device.makeDefaultLibrary(),
@@ -100,13 +121,17 @@ class Renderer: NSObject {
         guard let slimeFunction = library.makeFunction(name: "slimeKernel"),
               let slimePipelineState = try? device.makeComputePipelineState(function: slimeFunction),
               let diffuseFunction = library.makeFunction(name: "diffuseKernel"),
-              let diffusePipelineState = try? device.makeComputePipelineState(function: diffuseFunction) else {
+              let diffusePipelineState = try? device.makeComputePipelineState(function: diffuseFunction),
+              let agentInitFunction = library.makeFunction(name: "agentInitKernel"),
+              let agentInitPipelineState = try? device.makeComputePipelineState(function: agentInitFunction) else {
             return nil
         }
         
         self.slimePipelineState = slimePipelineState
         self.diffusePipelineState = diffusePipelineState
+        self.agentInitPipelineState = agentInitPipelineState
         
+        settings.agentCount = agentCount
         agentBuffer = device.makeBuffer(length: MemoryLayout<Agent>.stride * agentCount, options: .storageModeShared)!
         
         super.init()
@@ -132,10 +157,23 @@ class Renderer: NSObject {
         return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
     }
     
+    func restartSimulation(agentCount: Int) {
+        if settings.agentCount != agentCount {
+            agentBuffer = device.makeBuffer(length: MemoryLayout<Agent>.stride * agentCount, options: .storageModeShared)!
+        }
+        
+        settings.agentCount = agentCount
+        
+        loadTextures()
+        needsToInitAgents = true
+    }
+    
     private func loadTextures() {
         let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.width = Int(screenSize.x)
-        textureDescriptor.height = Int(screenSize.y)
+        
+        let smallerSide = Int(min(screenSize.x, screenSize.y))
+        textureDescriptor.width = smallerSide
+        textureDescriptor.height = smallerSide
         textureDescriptor.usage = [.shaderRead, .shaderWrite]
         textureDescriptor.pixelFormat = .rgba8Unorm
         
@@ -163,47 +201,35 @@ class Renderer: NSObject {
         
         uniforms[0].projectionMatrix = projectionMatrix
         uniforms[0].screenSize = screenSize
-        uniforms[0].deltaTime = min(deltaTime, 0.1)
+        uniforms[0].deltaTime = deltaTime
         uniforms[0].time += deltaTime
-        uniforms[0].moveSpeed = 20
+        uniforms[0].moveSpeed = settings.moveSpeed
+        uniforms[0].turnRate = settings.turnRate
+        uniforms[0].sensorOffset = settings.sensorOffset
+        uniforms[0].sensorAngleOffset = settings.sensorAngleOffset
+//        uniforms[0].depositRate = settings.depositRate
+        uniforms[0].diffuseRate = settings.diffuseRate
+        uniforms[0].decayRate = settings.decayRate
+        uniforms[0].sensorFlip = settings.sensorFlip
+        uniforms[0].color = settings.color
         
         timeSinceLastResize += deltaTime
         
         if !isLoaded && timeSinceLastResize > 0.2 {
-            reloadTexturesAndAgents()
+            loadTextures()
+            needsToInitAgents = true
             isLoaded = true
         }
         
-        prevTime = currentTime
-    }
-    
-    private func reloadTexturesAndAgents() {
-        loadTextures()
-        
-        guard let slimeTexture = slimeTexture else { return }
-        
-        let textureSize = simd_float2(Float(slimeTexture.width), Float(slimeTexture.height))
-        
-        let agentPointer = agentBuffer.contents().bindMemory(to: Agent.self, capacity: agentCount)
-        for i in 0..<agentCount {
-            agentPointer.advanced(by: i).pointee.position.x = .random(in: 0..<textureSize.x)
-            agentPointer.advanced(by: i).pointee.position.y = .random(in: 0..<textureSize.y)
-            
-//            agentPointer.advanced(by: i).pointee.position.x = textureSize.x / 2
-//            agentPointer.advanced(by: i).pointee.position.y = textureSize.y / 2
-            
-            let angle = Float.random(in: -.pi..<(.pi))
-            agentPointer.advanced(by: i).pointee.angle = angle
-            
-//            let radius: Float = .random(in: 0..<500)
-//            agentPointer.advanced(by: i).pointee.position.x = textureSize.x / 2 + cos(angle) * radius
-//            agentPointer.advanced(by: i).pointee.position.y = textureSize.y / 2 + sin(angle) * radius
-////
-//            let toCenter = safeNormalize(textureSize / 2.0 - agentPointer.advanced(by: i).pointee.position)
-//            agentPointer.advanced(by: i).pointee.angle = atan2(toCenter.y, toCenter.x)
+        timeSinceLastFpsUpdate += deltaTime
+        currentFps += 1
+        if timeSinceLastFpsUpdate >= 1.0 && deltaTime != 0 {
+            updateCurrentFps?(currentFps)
+            timeSinceLastFpsUpdate = 0
+            currentFps = 0
         }
         
-        prevTime = Float(CACurrentMediaTime())
+        prevTime = currentTime
     }
 }
 
@@ -244,16 +270,30 @@ extension Renderer: MTKViewDelegate {
         guard let slimeTexture = slimeTexture else { return }
         guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else { return }
         
-        let stepsPerFrame = 4
-        for _ in 0..<stepsPerFrame {
+        computeEncoder.setBuffer(agentBuffer, offset: 0, index: 0)
+        computeEncoder.setBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: 1)
+        computeEncoder.setTexture(slimeTexture, index: 0)
+        
+        if needsToInitAgents {
+            computeEncoder.pushDebugGroup("Agent Init Kernel")
+            computeEncoder.setComputePipelineState(agentInitPipelineState)
+            
+            let threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
+            let w = agentInitPipelineState.threadExecutionWidth
+            let threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
+            
+            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+            
+            computeEncoder.popDebugGroup()
+            
+            needsToInitAgents = false
+        }
+        
+        for _ in 0..<settings.simulationSteps {
             computeEncoder.pushDebugGroup("Slime Kernel")
             computeEncoder.setComputePipelineState(slimePipelineState)
             
-            computeEncoder.setBuffer(agentBuffer, offset: 0, index: 0)
-            computeEncoder.setBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: 1)
-            computeEncoder.setTexture(slimeTexture, index: 0)
-            
-            var threadsPerGrid = MTLSize(width: agentCount, height: 1, depth: 1)
+            var threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
             var w = slimePipelineState.threadExecutionWidth
             var threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
             
@@ -292,6 +332,7 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setVertexBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: BufferIndex.uniforms.rawValue)
         
+        renderEncoder.setVertexTexture(slimeTexture, index: 0)
         renderEncoder.setFragmentTexture(slimeTexture, index: 0)
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
