@@ -40,6 +40,15 @@ typedef struct
     float decayRate;
     float sensorFlip;
     simd_float4 color;
+    
+    float fuelLoadRate;
+    float fuelConsumptionRate;
+    float wasteDepositRate;
+    float wasteConversionRate;
+    float efficiency;
+    
+    float branchCount;
+    float branchScale;
 } Uniforms;
 
 typedef struct

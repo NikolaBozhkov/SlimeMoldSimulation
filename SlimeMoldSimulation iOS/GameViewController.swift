@@ -98,5 +98,8 @@ class GameViewController: UIViewController, SettingsViewDelegate {
                                    settingsView.colorGSliderBox.currentValue,
                                    settingsView.colorBSliderBox.currentValue,
                                    1.0] * settingsView.colorASliderBox.currentValue
+        
+        renderer.settings.branchCount = settingsView.branchCountSliderBox.currentValue
+        renderer.settings.branchScale = settingsView.branchScaleSliderBox.currentValue
     }
 }

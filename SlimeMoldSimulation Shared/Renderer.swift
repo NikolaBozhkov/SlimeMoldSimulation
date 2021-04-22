@@ -38,6 +38,14 @@ struct Settings {
     var decayRate: Float = 0.7
     var sensorFlip: Float = 1
     var color: simd_float4 = [1, 1, 1, 0.005]
+    var fuelLoadRate: Float = 0.1
+    var fuelConsumptionRate: Float = 0.1
+    var wasteDepositRate: Float = 0.1
+    var wasteConversionRate: Float = 0.1
+    var efficiency: Float = 0.1
+    
+    var branchCount: Float = 1.0
+    var branchScale: Float = 1.0
 }
 
 class Renderer: NSObject {
@@ -61,6 +69,7 @@ class Renderer: NSObject {
     var slimePipelineState: MTLComputePipelineState
     var diffusePipelineState: MTLComputePipelineState
     var slimeTexture: MTLTexture?
+    var fuelTexture: MTLTexture?
     
     var agentBuffer: MTLBuffer
     
@@ -187,6 +196,8 @@ class Renderer: NSObject {
         })
         
         self.slimeTexture = slimeTexture
+        
+        fuelTexture = device.makeTexture(descriptor: textureDescriptor)!
     }
     
     private func updateDynamicBufferState() {
@@ -212,6 +223,15 @@ class Renderer: NSObject {
         uniforms[0].decayRate = settings.decayRate
         uniforms[0].sensorFlip = settings.sensorFlip
         uniforms[0].color = settings.color
+        
+        uniforms[0].fuelLoadRate = settings.fuelLoadRate;
+        uniforms[0].fuelConsumptionRate = settings.fuelConsumptionRate;
+        uniforms[0].wasteDepositRate = settings.wasteDepositRate;
+        uniforms[0].wasteConversionRate = settings.wasteConversionRate;
+        uniforms[0].efficiency = settings.efficiency;
+        
+        uniforms[0].branchCount = settings.branchCount;
+        uniforms[0].branchScale = settings.branchScale;
         
         timeSinceLastResize += deltaTime
         
@@ -267,12 +287,13 @@ extension Renderer: MTKViewDelegate {
         updateDynamicBufferState()
         updateGameState()
         
-        guard let slimeTexture = slimeTexture else { return }
+        guard let slimeTexture = slimeTexture, let fuelTexture = fuelTexture else { return }
         guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else { return }
         
         computeEncoder.setBuffer(agentBuffer, offset: 0, index: 0)
         computeEncoder.setBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: 1)
         computeEncoder.setTexture(slimeTexture, index: 0)
+        computeEncoder.setTexture(fuelTexture, index: 1)
         
         if needsToInitAgents {
             computeEncoder.pushDebugGroup("Agent Init Kernel")
@@ -290,24 +311,24 @@ extension Renderer: MTKViewDelegate {
         }
         
         for _ in 0..<settings.simulationSteps {
+            computeEncoder.pushDebugGroup("Diffuse Kernel")
+            computeEncoder.setComputePipelineState(diffusePipelineState)
+
+            var threadsPerGrid = MTLSize(width: slimeTexture.width, height: slimeTexture.height, depth: 1)
+            var w = slimePipelineState.threadExecutionWidth
+            let h = slimePipelineState.maxTotalThreadsPerThreadgroup / w
+            var threadsPerGroup = MTLSize(width: w, height: h, depth: 1)
+
+            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+
+            computeEncoder.popDebugGroup()
+            
             computeEncoder.pushDebugGroup("Slime Kernel")
             computeEncoder.setComputePipelineState(slimePipelineState)
             
-            var threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
-            var w = slimePipelineState.threadExecutionWidth
-            var threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
-            
-            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
-            
-            computeEncoder.popDebugGroup()
-            
-            computeEncoder.pushDebugGroup("Diffuse Kernel")
-            computeEncoder.setComputePipelineState(diffusePipelineState)
-            
-            threadsPerGrid = MTLSize(width: slimeTexture.width, height: slimeTexture.height, depth: 1)
+            threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
             w = slimePipelineState.threadExecutionWidth
-            let h = slimePipelineState.maxTotalThreadsPerThreadgroup / w
-            threadsPerGroup = MTLSize(width: w, height: h, depth: 1)
+            threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
             
             computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
             
@@ -333,7 +354,12 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentBuffer(dynamicUniformBuffer, offset: uniformBufferOffset, index: BufferIndex.uniforms.rawValue)
         
         renderEncoder.setVertexTexture(slimeTexture, index: 0)
-        renderEncoder.setFragmentTexture(slimeTexture, index: 0)
+        
+        if settings.sensorFlip > 0 {
+            renderEncoder.setFragmentTexture(slimeTexture, index: 0)
+        } else {
+            renderEncoder.setFragmentTexture(fuelTexture, index: 0)
+        }
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
         

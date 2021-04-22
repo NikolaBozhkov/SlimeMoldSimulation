@@ -23,51 +23,59 @@ class SettingsView: UIView {
     private let margin: CGFloat = 12
     
     lazy var agentCountSliderBox: SliderBox = {
-        createSliderBox(label: "Agent Count", minValue: 1, maxValue: 100000, defaultValue: 20000, format: "%.0f", step: 1)
+        createSliderBox(label: "Agent Count", minValue: 1, maxValue: 1000000, defaultValue: 1000000, format: "%.0f", step: 1)
     }()
     
     lazy var simulationStepsSliderBox: SliderBox = {
-        createSliderBox(label: "Simulation Steps", minValue: 1.0, maxValue: 5.0, defaultValue: 5.0, format: "%.0f", step: 1.0)
+        createSliderBox(label: "Simulation Steps", minValue: 1.0, maxValue: 5.0, defaultValue: 3.0, format: "%.0f", step: 1.0)
     }()
     
     lazy var moveSpeedSliderBox: SliderBox = {
-        createSliderBox(label: "Move Speed", minValue: 0.0, maxValue: 400.0, defaultValue: 40.0, format: "%.2f")
+        createSliderBox(label: "Move Speed", minValue: 0.0, maxValue: 400.0, defaultValue: 31.14, format: "%.2f")
+    }()
+    
+    lazy var turnRateSliderBox: SliderBox = {
+        createSliderBox(label: "Turn Rate", minValue: 0.0, maxValue: 5.0, defaultValue: 0.49, format: "%.2f")
     }()
     
     lazy var sensorOffsetSliderBox: SliderBox = {
-        createSliderBox(label: "Sensor Offset", minValue: 2.0, maxValue: 250.0, defaultValue: 32.0, format: "%.0f", step: 1.0)
+        createSliderBox(label: "Sensor Offset", minValue: 2.0, maxValue: 250.0, defaultValue: 32, format: "%.0f", step: 1.0)
     }()
     
     lazy var sensorAngleOffsetSliderBox: SliderBox = {
         createSliderBox(label: "Sensor Angle Offset", minValue: 0.0, maxValue: 180.0, defaultValue: 30.0, format: "%.0f", step: 1.0)
     }()
     
-    lazy var turnRateSliderBox: SliderBox = {
-        createSliderBox(label: "Turn Rate", minValue: 0.0, maxValue: 5.0, defaultValue: 0.6, format: "%.2f")
-    }()
-    
     lazy var diffuseRateSliderBox: SliderBox = {
-        createSliderBox(label: "Diffuse Rate", minValue: 0.0, maxValue: 10.0, defaultValue: 0.0, format: "%.2f")
+        createSliderBox(label: "Diffuse Rate", minValue: 0.0, maxValue: 70.0, defaultValue: 0.0, format: "%.2f")
     }()
     
     lazy var decayRateSliderBox: SliderBox = {
-        createSliderBox(label: "Decay Rate", minValue: 0.0, maxValue: 3.0, defaultValue: 0.2, format: "%.2f")
+        createSliderBox(label: "Decay Rate", minValue: 0.0, maxValue: 3.0, defaultValue: 0.67, format: "%.2f")
     }()
     
     lazy var colorRSliderBox: SliderBox = {
-        createSliderBox(label: "Color R", minValue: 0.0, maxValue: 1.0, defaultValue: 1.0)
+        createSliderBox(label: "Color R", minValue: 0.0, maxValue: 1.0, defaultValue: 0.814)
     }()
     
     lazy var colorGSliderBox: SliderBox = {
-        createSliderBox(label: "Color G", minValue: 0.0, maxValue: 1.0, defaultValue: 1.0)
+        createSliderBox(label: "Color G", minValue: 0.0, maxValue: 1.0, defaultValue: 0.846)
     }()
     
     lazy var colorBSliderBox: SliderBox = {
-        createSliderBox(label: "Color B", minValue: 0.0, maxValue: 1.0, defaultValue: 1.0)
+        createSliderBox(label: "Color B", minValue: 0.0, maxValue: 1.0, defaultValue: 0.461)
     }()
     
     lazy var colorASliderBox: SliderBox = {
-        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 1.0, defaultValue: 0.12, format: "%.4f")
+        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 0.5, defaultValue: 0.03, format: "%.4f")
+    }()
+    
+    lazy var branchCountSliderBox: SliderBox = {
+        createSliderBox(label: "Branch Count", minValue: 0.0, maxValue: 10.0, defaultValue: 3, format: "%.0f", step: 1.0)
+    }()
+    
+    lazy var branchScaleSliderBox: SliderBox = {
+        createSliderBox(label: "Branch Scale", minValue: 0.0, maxValue: 10.0, defaultValue: 5.06)
     }()
     
     override init(frame: CGRect) {
@@ -96,7 +104,14 @@ class SettingsView: UIView {
             colorRSliderBox,
             colorGSliderBox,
             colorBSliderBox,
-            colorASliderBox
+            colorASliderBox,
+//            fuelLoadRateSliderBox,
+//            fuelConsumptionRateSliderBox,
+//            wasteDepositRateSliderBox,
+//            wasteConversionRateSliderBox,
+//            efficiencySliderBox,
+            branchCountSliderBox,
+            branchScaleSliderBox,
         ], axis: .vertical)
         
         addSubview(verticalStack)
