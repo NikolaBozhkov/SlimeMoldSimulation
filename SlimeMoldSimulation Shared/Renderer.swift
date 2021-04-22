@@ -38,6 +38,7 @@ struct Settings {
     var decayRate: Float = 0.7
     var sensorFlip: Float = 1
     var color: simd_float4 = [1, 1, 1, 0.005]
+    var colors: simd_float4x4 = simd_float4x4()
     var fuelLoadRate: Float = 0.1
     var fuelConsumptionRate: Float = 0.1
     var wasteDepositRate: Float = 0.1
@@ -223,6 +224,8 @@ class Renderer: NSObject {
         uniforms[0].decayRate = settings.decayRate
         uniforms[0].sensorFlip = settings.sensorFlip
         uniforms[0].color = settings.color
+        
+        uniforms[0].colors = settings.colors
         
         uniforms[0].fuelLoadRate = settings.fuelLoadRate;
         uniforms[0].fuelConsumptionRate = settings.fuelConsumptionRate;

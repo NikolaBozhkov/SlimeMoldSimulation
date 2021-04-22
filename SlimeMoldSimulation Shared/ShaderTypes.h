@@ -40,6 +40,7 @@ typedef struct
     float decayRate;
     float sensorFlip;
     simd_float4 color;
+    simd_float4x4 colors;
     
     float fuelLoadRate;
     float fuelConsumptionRate;
@@ -55,6 +56,7 @@ typedef struct
 {
     simd_float2 position;
     float angle;
+    ushort mask;
 } Agent;
 
 #endif /* ShaderTypes_h */

@@ -85,6 +85,13 @@ class GameViewController: UIViewController, SettingsViewDelegate {
         renderer.settings.sensorFlip = -renderer.settings.sensorFlip
     }
     
+    func getColor(for colorStack: ColorStack) -> simd_float4 {
+        [colorStack.colorRSliderBox.currentValue,
+         colorStack.colorGSliderBox.currentValue,
+         colorStack.colorBSliderBox.currentValue,
+         1.0] * settingsView.colorASliderBox.currentValue
+    }
+    
     func invalidateSettings() {
         renderer.settings.simulationSteps = Int(settingsView.simulationStepsSliderBox.currentValue)
         renderer.settings.moveSpeed = settingsView.moveSpeedSliderBox.currentValue
@@ -94,10 +101,12 @@ class GameViewController: UIViewController, SettingsViewDelegate {
 //        renderer.settings.depositRate = settingsView.depositRateSliderBox.currentValue
         renderer.settings.diffuseRate = settingsView.diffuseRateSliderBox.currentValue
         renderer.settings.decayRate = settingsView.decayRateSliderBox.currentValue
-        renderer.settings.color = [settingsView.colorRSliderBox.currentValue,
-                                   settingsView.colorGSliderBox.currentValue,
-                                   settingsView.colorBSliderBox.currentValue,
-                                   1.0] * settingsView.colorASliderBox.currentValue
+        renderer.settings.color = getColor(for: settingsView.colorStack)
+        
+        renderer.settings.colors.columns.0 = getColor(for: settingsView.colorStack)
+        renderer.settings.colors.columns.1 = getColor(for: settingsView.colorStack1)
+        renderer.settings.colors.columns.2 = getColor(for: settingsView.colorStack2)
+        renderer.settings.colors.columns.3 = getColor(for: settingsView.colorStack3)
         
         renderer.settings.branchCount = settingsView.branchCountSliderBox.currentValue
         renderer.settings.branchScale = settingsView.branchScaleSliderBox.currentValue

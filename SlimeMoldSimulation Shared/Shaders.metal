@@ -22,7 +22,7 @@ using namespace metal;
 #define SDF_R 0.25
 #define THOLD 0.1
 #define W_OFFSET -0.025
-#define OFFSET float2(0.45, 0.45)
+#define OFFSET float2(0.4, 0.4)
 
 typedef struct
 {
@@ -95,8 +95,11 @@ fragment float4 fragmentShader(VertexOut in [[stage_in]],
             sum += texture.sample(s, in.uv + o);
         }
     }
-
-    return sum / (AA * AA);
+    
+    float4 col = sum / (AA * AA);
+    float scale = 50.0 * M_PI_F;
+    float4 bg = float4(0.07) * step(0.0, sin(in.uv.x * scale) * cos(in.uv.y * scale));
+    return mix(col, bg, step(col.w, 0.00001));
 }
 
 float2 wrapPosition(float2 position, float width, float height)
@@ -160,26 +163,30 @@ kernel void agentInitKernel(device Agent *agents [[buffer(0)]],
 //    float i3 = step(i0Pct + i1Pct + i2Pct, rand) - step(i0Pct + i1Pct + i2Pct + i3Pct, rand);
     
     float2 p = float2(random(h * 13.0), random(h * 17.0)) * 2.0 - 1.0;
-    const float spawnR = 0.1;
+    const float spawnR = 0.15;
     p *= textureSize * float2(spawnR);
     
-    float2 offset = 1.0 / OFFSET + spawnR * 0.5;
+    float2 offset = (1.0 - OFFSET) * 0.5;
     
     if (rand >= 0.0 && rand < i0Pct)
     {
         agents[gid].position = textureSize * float2(offset.x, 1.0 - offset.y) + p;
+        agents[gid].mask = 0;
     }
     else if (rand >= i0Pct && rand < i0Pct + i1Pct)
     {
         agents[gid].position = textureSize * (1.0 - offset) + p;
+        agents[gid].mask = 1;
     }
     else if (rand >= i0Pct + i1Pct && rand < i0Pct + i1Pct + i2Pct)
     {
         agents[gid].position = textureSize * offset + p;
+        agents[gid].mask = 2;
     }
     else if (rand >= i0Pct + i1Pct + i2Pct && rand < i0Pct + i1Pct + i2Pct + i3Pct)
     {
         agents[gid].position = textureSize.x * float2(1.0 - offset.x, offset.y) + p;
+        agents[gid].mask = 3;
     }
     
 //    float2 toOuter = normalize(agents[gid].position - textureSize / 2);
@@ -318,8 +325,10 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
     
     agents[gid].position = newPosition;
     
+    float4 color = uniforms.colors.columns[agent.mask];
+    
     float4 prevTrail = slimeTexture.read(uint2(newPosition));
-    float4 newTrail = prevTrail + uniforms.color * (1.0 - prevTrail * prevTrail);
+    float4 newTrail = prevTrail + color * (1.0 - prevTrail * prevTrail);
     slimeTexture.write(min(1.0, newTrail), uint2(newPosition));
 }
 
