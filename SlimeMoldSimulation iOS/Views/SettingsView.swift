@@ -108,7 +108,7 @@ class SettingsView: UIView {
     }()
     
     lazy var colorStack1: ColorStack = {
-        ColorStack(delegate: self, r: 0.768, g: 0.597, b: 0.176)
+        ColorStack(delegate: self, r: 1.0, g: 0.559, b: 0.890)
     }()
     
     lazy var colorStack2: ColorStack = {
@@ -116,11 +116,11 @@ class SettingsView: UIView {
     }()
     
     lazy var colorStack3: ColorStack = {
-        ColorStack(delegate: self, r: 0.938, g: 0.351, b: 0.248)
+        ColorStack(delegate: self, r: 0.9, g: 0.351, b: 0.248)
     }()
     
     lazy var colorASliderBox: SliderBox = {
-        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 0.5, defaultValue: 0.0254, format: "%.4f")
+        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 0.5, defaultValue: 0.0232, format: "%.4f")
     }()
     
     lazy var branchCountSliderBox: SliderBox = {

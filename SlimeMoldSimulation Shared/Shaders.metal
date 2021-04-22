@@ -19,10 +19,10 @@ using namespace metal;
 #define THETA -0.618034
 #define SQRT_5 2.236068
 
-#define SDF_R 0.25
+#define SDF_R 0.3
 #define THOLD 0.1
 #define W_OFFSET -0.025
-#define OFFSET float2(0.4, 0.4)
+#define OFFSET float2(0.46, 0.46)
 
 typedef struct
 {
