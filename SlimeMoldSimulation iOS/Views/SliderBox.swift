@@ -15,9 +15,10 @@ class SliderBox: UIView {
     
     var delegate: SliderBoxDelegate?
     
-    private let fontSize: CGFloat = 15
+    private let fontSize: CGFloat = 17
     private let highlightColor = UIColor([1.0, 0.5, 0.188])
     private let transitionDuration: TimeInterval = 0.25
+    private let indicatorInactiveAlpha: CGFloat = 0.8
     
     private let step: Float
     private let format: String
@@ -49,7 +50,7 @@ class SliderBox: UIView {
     lazy var pctIndicatorLine: UIView = {
         let line = UIView()
         line.translatesAutoresizingMaskIntoConstraints = false
-        line.backgroundColor = highlightColor.withAlphaComponent(0.75)
+        line.backgroundColor = highlightColor.withAlphaComponent(indicatorInactiveAlpha)
         return line
     }()
     
@@ -61,7 +62,7 @@ class SliderBox: UIView {
         self.format = format
         currentValue = defaultValue
         
-        let backgroundColor = UIColor(white: 1.0, alpha: 0.17)
+        let backgroundColor = UIColor(white: 1.0, alpha: 0.19)
         
         let borderColorAnim = CABasicAnimation(keyPath: "borderColor")
         borderColorAnim.fromValue = highlightColor.cgColor
@@ -96,13 +97,13 @@ class SliderBox: UIView {
         stack.axis = .horizontal
         stack.distribution = .fill
         
-        let padding: CGFloat = 7
+        let padding: CGFloat = 10
         stack.spacing = padding
         
         addSubview(pctIndicatorLine)
         addSubview(stack)
         
-        stack.fill(self, padding: padding)
+        stack.fill(self, insets: UIEdgeInsets(top: 7, left: 10, bottom: 7, right: 10))
         
         setPctLineIndicatorConstraints()
         
@@ -162,7 +163,7 @@ class SliderBox: UIView {
     
     private func setPctLineIndicatorConstraints() {
         pctIndicatorLine.widthAnchor.constraint(equalToConstant: 2).isActive = true
-        pctIndicatorLine.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 1.2).isActive = true
+        pctIndicatorLine.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 1.23).isActive = true
         pctIndicatorLine.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         
         indicatorCenterXConstraint = pctIndicatorLine.centerXAnchor.constraint(equalTo: leadingAnchor)
@@ -195,7 +196,8 @@ class SliderBox: UIView {
         animateLabel(valueLabel, isHighlighted: isOn)
         
         UIView.animate(withDuration: transitionDuration, delay: 0, options: .curveEaseOut, animations: {
-            self.pctIndicatorLine.backgroundColor = isOn ? self.highlightColor : self.highlightColor.withAlphaComponent(0.75)
+            self.pctIndicatorLine.backgroundColor = isOn ? self.highlightColor
+                : self.highlightColor.withAlphaComponent(self.indicatorInactiveAlpha)
         })
     }
     

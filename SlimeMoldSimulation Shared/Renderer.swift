@@ -182,8 +182,8 @@ class Renderer: NSObject {
         let textureDescriptor = MTLTextureDescriptor()
         
         let smallerSide = Int(min(screenSize.x, screenSize.y))
-        textureDescriptor.width = smallerSide
-        textureDescriptor.height = smallerSide
+        textureDescriptor.width = Int(screenSize.x)
+        textureDescriptor.height = Int(screenSize.y)
         textureDescriptor.usage = [.shaderRead, .shaderWrite]
         textureDescriptor.pixelFormat = .rgba8Unorm
         
@@ -264,10 +264,22 @@ extension Renderer: MTKViewDelegate {
         timeSinceLastResize = 0
         isLoaded = false
         
-        let aspect = Float(size.width) / Float(size.height)
-        let height: Float = 1080
-//        let sceneSize = simd_float2(height * aspect, height)
-        let sceneSize = simd_float2(height * aspect, height)
+//        let height: Float = 1080
+//        let aspect: Float
+//        let sceneSize: simd_float2
+//        if size.width > size.height {
+//            aspect = Float(size.width) / Float(size.height)
+//            sceneSize = simd_float2(height * aspect, height)
+//        } else {
+//            aspect = Float(size.height) / Float(size.width)
+//            sceneSize = simd_float2(height, height * aspect)
+//        }
+        
+        let width: Float = 1080
+        let aspect = Float(size.height / size.width)
+        let sceneSize = simd_float2(width, width * aspect)
+        
+//        let sceneSize = simd_float2(size.width, size.height)
         screenSize = sceneSize
         projectionMatrix = float4x4.makeOrtho(left: -sceneSize.x / 2, right:   sceneSize.x / 2,
                                               top:   sceneSize.y / 2, bottom: -sceneSize.y / 2,

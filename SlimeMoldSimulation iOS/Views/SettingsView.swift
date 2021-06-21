@@ -60,8 +60,8 @@ class ColorStack {
     }
 }
 
-private let padding: CGFloat = 12
-private let margin: CGFloat = 12
+private let padding: CGFloat = 20
+private let margin: CGFloat = 25
 
 class SettingsView: UIView {
     
@@ -72,7 +72,7 @@ class SettingsView: UIView {
     var delegate: SettingsViewDelegate?
     
     lazy var agentCountSliderBox: SliderBox = {
-        createSliderBox(label: "Agent Count", minValue: 1, maxValue: 1000000, defaultValue: 1000000, format: "%.0f", step: 1)
+        createSliderBox(label: "Agent Count", minValue: 1, maxValue: 1000000, defaultValue: 300000, format: "%.0f", step: 1)
     }()
     
     lazy var simulationStepsSliderBox: SliderBox = {
@@ -80,11 +80,11 @@ class SettingsView: UIView {
     }()
     
     lazy var moveSpeedSliderBox: SliderBox = {
-        createSliderBox(label: "Move Speed", minValue: 0.0, maxValue: 400.0, defaultValue: 31.14, format: "%.2f")
+        createSliderBox(label: "Move Speed", minValue: 0.0, maxValue: 400.0, defaultValue: 50, format: "%.2f")
     }()
     
     lazy var turnRateSliderBox: SliderBox = {
-        createSliderBox(label: "Turn Rate", minValue: 0.0, maxValue: 5.0, defaultValue: 0.49, format: "%.2f")
+        createSliderBox(label: "Turn Rate", minValue: 0.0, maxValue: 5.0, defaultValue: 0.42, format: "%.2f")
     }()
     
     lazy var sensorOffsetSliderBox: SliderBox = {
@@ -100,11 +100,11 @@ class SettingsView: UIView {
     }()
     
     lazy var decayRateSliderBox: SliderBox = {
-        createSliderBox(label: "Decay Rate", minValue: 0.0, maxValue: 3.0, defaultValue: 0.67, format: "%.2f")
+        createSliderBox(label: "Decay Rate", minValue: 0.0, maxValue: 3.0, defaultValue: 0.35, format: "%.2f")
     }()
     
     lazy var colorStack: ColorStack = {
-        ColorStack(delegate: self, r: 0.611, g: 0.848, b: 0.871)
+        ColorStack(delegate: self, r: 1, g: 1, b: 1)
     }()
     
     lazy var colorStack1: ColorStack = {
@@ -120,7 +120,7 @@ class SettingsView: UIView {
     }()
     
     lazy var colorASliderBox: SliderBox = {
-        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 0.5, defaultValue: 0.0232, format: "%.4f")
+        createSliderBox(label: "Color A", minValue: 0.0, maxValue: 0.5, defaultValue: 0.056, format: "%.4f")
     }()
     
     lazy var branchCountSliderBox: SliderBox = {
@@ -128,7 +128,7 @@ class SettingsView: UIView {
     }()
     
     lazy var branchScaleSliderBox: SliderBox = {
-        createSliderBox(label: "Branch Scale", minValue: 0.0, maxValue: 10.0, defaultValue: 2.171)
+        createSliderBox(label: "Branch Scale", minValue: 0.0, maxValue: 10.0, defaultValue: 2.1)
     }()
     
     override init(frame: CGRect) {
@@ -143,7 +143,7 @@ class SettingsView: UIView {
     
     private func setupView() {
         layer.cornerRadius = 10
-        backgroundColor = UIColor(white: 0.0, alpha: 0.8)
+        backgroundColor = UIColor(white: 0.0, alpha: 0.9)
         
         let verticalStack = createStack(from: [
             agentCountSliderBox,
@@ -155,9 +155,9 @@ class SettingsView: UIView {
 //            diffuseRatesSliderBox,
             decayRateSliderBox,
             colorStack.stackView,
-            colorStack1.stackView,
-            colorStack2.stackView,
-            colorStack3.stackView,
+//            colorStack1.stackView,
+//            colorStack2.stackView,
+//            colorStack3.stackView,
             colorASliderBox,
 //            fuelLoadRateSliderBox,
 //            fuelConsumptionRateSliderBox,
@@ -168,9 +168,16 @@ class SettingsView: UIView {
             branchScaleSliderBox,
         ], axis: .vertical)
         
-        addSubview(verticalStack)
+//        addSubview(verticalStack)
         
-        verticalStack.fill(self, padding: padding)
+        let containerStack = UIStackView(arrangedSubviews: [verticalStack])
+        containerStack.translatesAutoresizingMaskIntoConstraints = false
+        containerStack.axis = .horizontal
+        containerStack.alignment = .leading
+        
+        addSubview(containerStack)
+        
+        containerStack.fill(self, insets: UIEdgeInsets(top: 30, left: 20, bottom: 30, right: 20))
     }
     
     private func createSliderBox(label: String, minValue: Float, maxValue: Float,

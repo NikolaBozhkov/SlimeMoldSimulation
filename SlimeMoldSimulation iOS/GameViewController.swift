@@ -69,7 +69,7 @@ class GameViewController: UIViewController, SettingsViewDelegate {
         let location = touches.first!.location(in: view)
         let locationInSettings = touches.first!.location(in: settingsView)
         
-        let triggerSize: CGFloat = 150
+        let triggerSize: CGFloat = settingsView.frame.width
         if settingsView.isHidden && location.x < triggerSize {
             settingsView.isHidden = false
         } else if !settingsView.isHidden && !settingsView.bounds.contains(locationInSettings) {

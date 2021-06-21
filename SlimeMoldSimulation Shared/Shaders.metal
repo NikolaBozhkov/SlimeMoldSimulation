@@ -19,8 +19,9 @@ using namespace metal;
 #define THETA -0.618034
 #define SQRT_5 2.236068
 
-#define SDF_R 0.3
-#define THOLD 0.1
+#define TRI_R 0.2
+#define CIRC_R 0.3
+#define THOLD 0.06
 #define W_OFFSET -0.025
 #define OFFSET float2(0.46, 0.46)
 
@@ -98,8 +99,14 @@ fragment float4 fragmentShader(VertexOut in [[stage_in]],
     
     float4 col = sum / (AA * AA);
     float scale = 50.0 * M_PI_F;
-    float4 bg = float4(0.07) * step(0.0, sin(in.uv.x * scale) * cos(in.uv.y * scale));
-    return mix(col, bg, step(col.w, 0.00001));
+    
+    float d = length(float2(0.5) - in.uv) * 2.0;
+    float c = step(TRI_R + CIRC_R + 0.25, d) - step(TRI_R + CIRC_R + 0.27, d);
+    
+    float4 bg = float4(0.07 + c) * step(0.0, sin(in.uv.x * scale) * cos(in.uv.y * scale));
+    
+//    return col + (1.0 - col.w) * bg;
+    return col;
 }
 
 float2 wrapPosition(float2 position, float width, float height)
@@ -131,6 +138,12 @@ float sdEquilateralTriangle(float2 p, float r)
     return -length(p)*sign(p.y);
 }
 
+float sdBox(float2 p, float2 b)
+{
+    float2 d = abs(p)-b;
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+
 float2x2 rotate2d(float a)
 {
     const float s = sin(a);
@@ -148,10 +161,12 @@ kernel void agentInitKernel(device Agent *agents [[buffer(0)]],
     
     const float h = hash01(gid);
     const float angle = h * M_PI_F * 2.0 - M_PI_F;
-    const float radius = hash01(uint(h * 4294967295.0)) * 420.0;
+    const float radius = hash01(uint(h * 4294967295.0)) * 320.0;
     
 //    agents[gid].position.x = textureSize.x / 2 + cos(angle) * radius;
 //    agents[gid].position.y = textureSize.y / 2 + sin(angle) * radius;
+    
+    agents[gid].position = float2(random(h * 13.0), random(h * 17.0)) * textureSize;
     
     float rand = random(h * 7.0 + 3.17);
     
@@ -168,26 +183,26 @@ kernel void agentInitKernel(device Agent *agents [[buffer(0)]],
     
     float2 offset = (1.0 - OFFSET) * 0.5;
     
-    if (rand >= 0.0 && rand < i0Pct)
-    {
-        agents[gid].position = textureSize * float2(offset.x, 1.0 - offset.y) + p;
-        agents[gid].mask = 0;
-    }
-    else if (rand >= i0Pct && rand < i0Pct + i1Pct)
-    {
-        agents[gid].position = textureSize * (1.0 - offset) + p;
-        agents[gid].mask = 1;
-    }
-    else if (rand >= i0Pct + i1Pct && rand < i0Pct + i1Pct + i2Pct)
-    {
-        agents[gid].position = textureSize * offset + p;
-        agents[gid].mask = 2;
-    }
-    else if (rand >= i0Pct + i1Pct + i2Pct && rand < i0Pct + i1Pct + i2Pct + i3Pct)
-    {
-        agents[gid].position = textureSize.x * float2(1.0 - offset.x, offset.y) + p;
-        agents[gid].mask = 3;
-    }
+//    if (rand >= 0.0 && rand < i0Pct)
+//    {
+//        agents[gid].position = textureSize * float2(offset.x, 1.0 - offset.y) + p;
+//        agents[gid].mask = 0;
+//    }
+//    else if (rand >= i0Pct && rand < i0Pct + i1Pct)
+//    {
+//        agents[gid].position = textureSize * (1.0 - offset) + p;
+//        agents[gid].mask = 1;
+//    }
+//    else if (rand >= i0Pct + i1Pct && rand < i0Pct + i1Pct + i2Pct)
+//    {
+//        agents[gid].position = textureSize * offset + p;
+//        agents[gid].mask = 2;
+//    }
+//    else if (rand >= i0Pct + i1Pct + i2Pct && rand < i0Pct + i1Pct + i2Pct + i3Pct)
+//    {
+//        agents[gid].position = textureSize.x * float2(1.0 - offset.x, offset.y) + p;
+//        agents[gid].mask = 3;
+//    }
     
 //    float2 toOuter = normalize(agents[gid].position - textureSize / 2);
 //    agents[gid].angle = atan2(toOuter.y, toOuter.x);
@@ -201,39 +216,36 @@ kernel void agentInitKernel(device Agent *agents [[buffer(0)]],
 //    agents[gid].moveSpeed = 0.0;
 }
 
-float sdUnion(float2 p)
+float2 sdUnionInfo(float2 p, Agent agent, float time)
 {
-    float2 sdtOffset = float2(-OFFSET.x, OFFSET.y + SDF_R * 0.25);
-    float sdt = sdEquilateralTriangle(p + sdtOffset, SDF_R);
+    const float startAngle = M_PI_F * 1.5;
+    const float angleIncrement = M_PI_F / 1.5;
+    const float margin = 0.25;
     
-    float2 p1 = rotate2d(M_PI_F) * p;
-    float sdt1 = abs(sdEquilateralTriangle(p1 + sdtOffset, SDF_R - W_OFFSET)) - W_OFFSET;
+    const float orbit = TRI_R + CIRC_R + margin;
     
-    float sdc = length(p + OFFSET) - SDF_R;
+    float angle = startAngle;
+    float2 p1 = rotate2d(M_PI_F) * -p;
+    float sdt1 = sdEquilateralTriangle(p1 - float2(cos(angle), sin(angle)) * orbit, TRI_R);
     
-    float sdc1 = abs(length(p - OFFSET) - SDF_R + W_OFFSET) - W_OFFSET;
-
-    return min(min(sdt, sdt1), min(sdc, sdc1));
-}
-
-float2 sdUnionInfo(float2 p)
-{
-    float2 sdtOffset = float2(-OFFSET.x, OFFSET.y + SDF_R * 0.25);
-    float sdt = sdEquilateralTriangle(p + sdtOffset, SDF_R);
+    angle += angleIncrement;
+    float sdt2 = sdEquilateralTriangle(p1 - float2(cos(angle), sin(angle)) * orbit, TRI_R);
     
-    float2 p1 = rotate2d(M_PI_F) * p;
-    float sdt1 = abs(sdEquilateralTriangle(p1 + sdtOffset, SDF_R - W_OFFSET)) - W_OFFSET;
+    angle += angleIncrement;
+    float sdt3 = sdEquilateralTriangle(p1 - float2(cos(angle), sin(angle)) * orbit, TRI_R);
     
-    float sdc = length(p + OFFSET) - SDF_R;
+    float sdc = length(p) - CIRC_R;
     
-    float sdc1 = abs(length(p - OFFSET) - SDF_R + W_OFFSET) - W_OFFSET;
+    float state = step(0.5, fract(time * 0.1));
     
-    float sd = min(min(sdt, sdt1), min(sdc, sdc1));
-    float isOutline = step(min(sdt1, sdc1), min(sdt, sdc));
+    float sd = mix(min(min(sdt1, sdt2), sdt3), sdc, state);
+    
+//    float sd = min(min(sdt1, sdt2), min(sdt3, sdc));
+    float isOutline = 0.0;
     return float2(sd, isOutline);
 }
 
-float sense(Agent agent, float sensorOffset, float sensorAngleOffset, texture2d<float, access::read_write> slimeTexture)
+float sense(Agent agent, float sensorOffset, float sensorAngleOffset, texture2d<float, access::read_write> slimeTexture, float time)
 {
     float sensorAngle = agent.angle + sensorAngleOffset;
     float2 sensorPos = agent.position + float2(cos(sensorAngle), sin(sensorAngle)) * sensorOffset;
@@ -246,9 +258,18 @@ float sense(Agent agent, float sensorOffset, float sensorAngleOffset, texture2d<
     const float2 center = float2(slimeTexture.get_width(), slimeTexture.get_height()) / 2.0;
     
     float2 p = (sensorPos - center) / (slimeTexture.get_width() * 0.5);
-    float sd = sdUnion(p);
+    float sd = sdUnionInfo(p, agent, time).x;
     
-    return mix(sum, -sd, step(THOLD, sd));
+    float2 ap = (agent.position - center) / (slimeTexture.get_width() * 0.5);
+    
+    float progress = fract(time * 0.1);
+    float state = step(0.5, progress);
+    float flow = (1.0 - smoothstep(0.0, 0.25, progress)) * (1.0 - state) + state * (1.0 - smoothstep(0.5, 0.75, progress));
+    
+    return sum;
+//    return mix(sum, -sdc, step(sdc, 0.0));
+//    return mix(sum, -sd, step(sd, 0.0));
+//    return mix(sum, -sd + sum * flow, step(THOLD, sd));
 }
 
 kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
@@ -264,27 +285,27 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
     const float2 center = float2(slimeTexture.get_width(), slimeTexture.get_height()) / 2.0;
     
     float2 p = (agent.position - center) / (slimeTexture.get_width() * 0.5);
-    float2 sdInfo = sdUnionInfo(p);
+    float2 sdInfo = sdUnionInfo(p, agent, uniforms.time);
     float sd = sdInfo.x;
     float thold = THOLD * (1.0 + sdInfo.y * 0.2);
     float t = 1.0 - smoothstep(0.0, thold, sd);
     
     float branchIndex = floor(current * uniforms.branchCount) + 30.0;
     float sensorOffset = 0.000001 * uniforms.branchScale * (pow(PHI, branchIndex) - pow(THETA, branchIndex)) / SQRT_5;
-    sensorOffset *= mix(0.5, 1.0, t);
+//    sensorOffset *= mix(0.5, 1.0, t);
 //    float sensorAngleOffset = uniforms.sensorAngleOffset;//mix(M_PI_F / 4.0, M_PI_F / 8.0, current);
     float sensorAngleOffset = mix(M_PI_F / 4.0, M_PI_F / 10.0, current);
-    float weightLeft = sense(agent, sensorOffset, sensorAngleOffset, slimeTexture);
-    float weightRight = sense(agent, sensorOffset, -sensorAngleOffset, slimeTexture);
-    float weightForward = sense(agent, sensorOffset, 0, slimeTexture);
+    float weightLeft = sense(agent, sensorOffset, sensorAngleOffset, slimeTexture, uniforms.time);
+    float weightRight = sense(agent, sensorOffset, -sensorAngleOffset, slimeTexture, uniforms.time);
+    float weightForward = sense(agent, sensorOffset, 0, slimeTexture, uniforms.time);
     
-//    float agentD = distance(center, agent.position) / (slimeTexture.get_width() * 0.5);
+    float agentD = distance(center, agent.position) / (slimeTexture.get_width() * 0.5);
     
 //    float maxWeight = max(max(weightLeft, weightRight), weightForward);
     
 //    float randomSteerStrength = hash01(agent.position.y * slimeTexture.get_width() + agent.position.x + hash(gid + uniforms.time * 100000.0));
     float turnRate = uniforms.turnRate * 2.0 * M_PI_F * (1.0 + current * 3.0);
-    turnRate = mix(turnRate, turnRate * 0.5, step(thold, sd));
+//    turnRate = mix(turnRate, turnRate * 0.5, step(thold, sd));
 //    turnRate = mix(turnRate, turnRate * 2.0, smoothstep(0.4, 0.5, agentD));
 
 //    if (weightForward > weightLeft && weightForward > weightRight) {
@@ -300,7 +321,7 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
 //        agents[gid].angle += randomSteerStrength * turnRate * uniforms.deltaTime;
 //    }
     
-//    weightForward = pow(weightForward, 1.0 + 6.0 * step(0.4, agentD));
+//    weightForward = pow(weightForward, 7.0);
 //    weightLeft = pow(weightLeft, 7.0);
 //    weightRight = pow(weightRight, 7.0);
     
