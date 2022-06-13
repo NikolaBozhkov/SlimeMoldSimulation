@@ -50,6 +50,9 @@ typedef struct
     
     float branchCount;
     float branchScale;
+    
+    simd_float2 touchPosition;
+    bool isTouching;
 } Uniforms;
 
 typedef struct

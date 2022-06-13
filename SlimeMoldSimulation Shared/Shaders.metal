@@ -350,6 +350,9 @@ kernel void slimeKernel(texture2d<float, access::read_write> slimeTexture,
     
     float4 prevTrail = slimeTexture.read(uint2(newPosition));
     float4 newTrail = prevTrail + color * (1.0 - prevTrail * prevTrail);
+    newTrail = mix(newTrail,
+                   newTrail * (1.0 - 0.2 * (1.0 - min(1.0, length(newPosition - uniforms.touchPosition) / 200))),
+                   uniforms.isTouching);
     slimeTexture.write(min(1.0, newTrail), uint2(newPosition));
 }
 

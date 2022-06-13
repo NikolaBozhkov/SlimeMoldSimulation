@@ -44,6 +44,9 @@
 		2484AAB3262528DD00D4DA2C /* MathLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AA9F262528DD00D4DA2C /* MathLibrary.swift */; };
 		2484AAB926252D1900D4DA2C /* BufferFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AAB826252D1800D4DA2C /* BufferFormats.swift */; };
 		2484AABA26252D1900D4DA2C /* BufferFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2484AAB826252D1800D4DA2C /* BufferFormats.swift */; };
+		24D91E39269EAA3600BB768A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D91E38269EAA3600BB768A /* Constants.swift */; };
+		24D91E3C269EAECB00BB768A /* CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D91E3B269EAECB00BB768A /* CommonExtensions.swift */; };
+		24D91E3E269EB10C00BB768A /* ViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D91E3D269EB10C00BB768A /* ViewFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +80,9 @@
 		2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NotificationName+Extensions.swift"; sourceTree = "<group>"; };
 		2484AA9F262528DD00D4DA2C /* MathLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathLibrary.swift; sourceTree = "<group>"; };
 		2484AAB826252D1800D4DA2C /* BufferFormats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferFormats.swift; sourceTree = "<group>"; };
+		24D91E38269EAA3600BB768A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		24D91E3B269EAECB00BB768A /* CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExtensions.swift; sourceTree = "<group>"; };
+		24D91E3D269EB10C00BB768A /* ViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFactory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +112,8 @@
 				24514A7F26272D1C00D480F5 /* SliderBox.swift */,
 				24514A8026272D1C00D480F5 /* CoreAnimation+Extensions.swift */,
 				24514A8126272D1C00D480F5 /* Button.swift */,
+				24D91E38269EAA3600BB768A /* Constants.swift */,
+				24D91E3D269EB10C00BB768A /* ViewFactory.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -145,6 +153,7 @@
 		2484AA662625223400D4DA2C /* SlimeMoldSimulation iOS */ = {
 			isa = PBXGroup;
 			children = (
+				24D91E3A269EAEAF00BB768A /* Extensions */,
 				24514A7C26272D1C00D480F5 /* Views */,
 				2484AA672625223400D4DA2C /* AppDelegate.swift */,
 				2484AA692625223400D4DA2C /* GameViewController.swift */,
@@ -185,6 +194,14 @@
 				2484AA9A262528DD00D4DA2C /* CGSize+Extensions.swift */,
 				2484AA9C262528DD00D4DA2C /* CGPoint+Extensions.swift */,
 				2484AA9D262528DD00D4DA2C /* NotificationName+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		24D91E3A269EAEAF00BB768A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				24D91E3B269EAECB00BB768A /* CommonExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -233,7 +250,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1240;
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1320;
 				TargetAttributes = {
 					2484AA632625223400D4DA2C = {
 						CreatedOnToolsVersion = 12.4;
@@ -303,10 +320,13 @@
 				24514A8426272D1C00D480F5 /* SliderBox.swift in Sources */,
 				2484AAAC262528DD00D4DA2C /* CGPoint+Extensions.swift in Sources */,
 				2484AA812625223400D4DA2C /* Shaders.metal in Sources */,
+				24D91E3C269EAECB00BB768A /* CommonExtensions.swift in Sources */,
 				2484AAAE262528DD00D4DA2C /* NotificationName+Extensions.swift in Sources */,
 				2484AA6A2625223400D4DA2C /* GameViewController.swift in Sources */,
+				24D91E39269EAA3600BB768A /* Constants.swift in Sources */,
 				24514A8526272D1C00D480F5 /* CoreAnimation+Extensions.swift in Sources */,
 				2484AA682625223400D4DA2C /* AppDelegate.swift in Sources */,
+				24D91E3E269EB10C00BB768A /* ViewFactory.swift in Sources */,
 				24514A8226272D1C00D480F5 /* SettingsView.swift in Sources */,
 				24514A8626272D1C00D480F5 /* Button.swift in Sources */,
 			);
@@ -523,6 +543,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "SlimeMoldSimulation macOS/SlimeMoldSimulation_macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = XZT6P8DQ87;
@@ -547,6 +568,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "SlimeMoldSimulation macOS/SlimeMoldSimulation_macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = XZT6P8DQ87;

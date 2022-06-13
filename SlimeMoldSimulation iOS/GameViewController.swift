@@ -65,6 +65,21 @@ class GameViewController: UIViewController, SettingsViewDelegate {
     override var prefersStatusBarHidden: Bool { true }
     override var prefersHomeIndicatorAutoHidden: Bool { true }
     
+    func updateTouchPosition(_ location: CGPoint) {
+        let viewLocation = simd_float2(Float(location.x), Float(view.bounds.height - location.y))
+        renderer.touchPosition = renderer.screenSize * viewLocation / simd_float2(view.bounds.size)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let location = touches.first!.location(in: view)
+        updateTouchPosition(location)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let location = touches.first!.location(in: view)
+        updateTouchPosition(location)
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let location = touches.first!.location(in: view)
         let locationInSettings = touches.first!.location(in: settingsView)
@@ -75,7 +90,10 @@ class GameViewController: UIViewController, SettingsViewDelegate {
         } else if !settingsView.isHidden && !settingsView.bounds.contains(locationInSettings) {
             settingsView.isHidden = true
         }
+        
+        renderer.touchPosition = nil
     }
+    
     
     @objc func restartSimulation() {
         renderer.restartSimulation(agentCount: Int(settingsView.agentCountSliderBox.currentValue))

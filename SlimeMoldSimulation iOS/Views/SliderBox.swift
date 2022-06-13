@@ -15,8 +15,6 @@ class SliderBox: UIView {
     
     var delegate: SliderBoxDelegate?
     
-    private let fontSize: CGFloat = 17
-    private let highlightColor = UIColor([1.0, 0.5, 0.188])
     private let transitionDuration: TimeInterval = 0.25
     private let indicatorInactiveAlpha: CGFloat = 0.8
     
@@ -38,11 +36,11 @@ class SliderBox: UIView {
     private var indicatorCenterXConstraint: NSLayoutConstraint!
     
     lazy var label: UILabel = {
-        createLabel()
+        ViewFactory.newLabel(ofType: .settings)
     }()
     
     lazy var valueLabel: UILabel = {
-        let label = createLabel()
+        let label = ViewFactory.newLabel(ofType: .settings)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
@@ -50,7 +48,7 @@ class SliderBox: UIView {
     lazy var pctIndicatorLine: UIView = {
         let line = UIView()
         line.translatesAutoresizingMaskIntoConstraints = false
-        line.backgroundColor = highlightColor.withAlphaComponent(indicatorInactiveAlpha)
+        line.backgroundColor = Constants.highlightColor.withAlphaComponent(indicatorInactiveAlpha)
         return line
     }()
     
@@ -65,7 +63,7 @@ class SliderBox: UIView {
         let backgroundColor = UIColor(white: 1.0, alpha: 0.19)
         
         let borderColorAnim = CABasicAnimation(keyPath: "borderColor")
-        borderColorAnim.fromValue = highlightColor.cgColor
+        borderColorAnim.fromValue = Constants.highlightColor.cgColor
         borderColorAnim.toValue = UIColor.clear.cgColor
         
         let backgroundColorAnim = CABasicAnimation(keyPath: "backgroundColor")
@@ -172,14 +170,6 @@ class SliderBox: UIView {
         pctIndicatorLine.layer.cornerRadius = 1
     }
     
-    private func createLabel() -> UILabel {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: fontSize)
-        label.textColor = .white
-        return label
-    }
-    
     private func showIndicators() {
         animateHighlight(isOn: true)
     }
@@ -196,14 +186,14 @@ class SliderBox: UIView {
         animateLabel(valueLabel, isHighlighted: isOn)
         
         UIView.animate(withDuration: transitionDuration, delay: 0, options: .curveEaseOut, animations: {
-            self.pctIndicatorLine.backgroundColor = isOn ? self.highlightColor
-                : self.highlightColor.withAlphaComponent(self.indicatorInactiveAlpha)
+            self.pctIndicatorLine.backgroundColor = isOn ? Constants.highlightColor
+                : Constants.highlightColor.withAlphaComponent(self.indicatorInactiveAlpha)
         })
     }
     
     private func animateLabel(_ label: UILabel, isHighlighted: Bool) {
         UIView.transition(with: label, duration: transitionDuration, options: [.transitionCrossDissolve, .curveEaseOut], animations: {
-            label.textColor = isHighlighted ? self.highlightColor : .white
+            label.textColor = isHighlighted ? Constants.highlightColor : .white
         })
     }
 }

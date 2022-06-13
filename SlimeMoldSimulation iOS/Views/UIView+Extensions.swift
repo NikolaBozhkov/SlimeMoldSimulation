@@ -8,7 +8,7 @@
 import UIKit
 
 extension UIView {
-    func fill(_ view: UIView, padding: CGFloat) {
+    func fill(_ view: UIView, padding: CGFloat = 0) {
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding).isActive = true
         topAnchor.constraint(equalTo: view.topAnchor, constant: padding).isActive = true

@@ -28,25 +28,28 @@ let alignedUniformsSize = (MemoryLayout<Uniforms>.size + 0xFF) & -0x100
 let maxBuffersInFlight = 3
 
 struct Settings {
-    var agentCount: Int = 7000000
-    var simulationSteps: Int = 1
-    var moveSpeed: Float = 60
+    var agentCount: Int = 1000000
+    var simulationSteps: Int = 3
+    var moveSpeed: Float = 50
     var sensorOffset: Float = 35
     var sensorAngleOffset: Float = 32
-    var turnRate: Float = 2.0
-    var diffuseRate: Float = 8.0
-    var decayRate: Float = 0.7
+    var turnRate: Float = 0.42
+    var diffuseRate: Float = 0.0
+    var decayRate: Float = 0.4
     var sensorFlip: Float = 1
     var color: simd_float4 = [1, 1, 1, 0.005]
-    var colors: simd_float4x4 = simd_float4x4()
+    var colors: simd_float4x4 = simd_float4x4([1, 1, 1, 0.05],
+                                              [1, 1, 1, 1],
+                                              [1, 1, 1, 1],
+                                              [1, 1, 1, 1])
     var fuelLoadRate: Float = 0.1
     var fuelConsumptionRate: Float = 0.1
     var wasteDepositRate: Float = 0.1
     var wasteConversionRate: Float = 0.1
     var efficiency: Float = 0.1
     
-    var branchCount: Float = 1.0
-    var branchScale: Float = 1.0
+    var branchCount: Float = 5.0
+    var branchScale: Float = 2.0
 }
 
 class Renderer: NSObject {
@@ -87,6 +90,8 @@ class Renderer: NSObject {
     var timeSinceLastFpsUpdate: Float = 0.0
     var currentFps: Int = 0
     var updateCurrentFps: ((Int) -> Void)?
+    
+    var touchPosition: simd_float2?
     
     init?(metalKitView: MTKView, agentCount: Int) {
         guard
@@ -227,14 +232,17 @@ class Renderer: NSObject {
         
         uniforms[0].colors = settings.colors
         
-        uniforms[0].fuelLoadRate = settings.fuelLoadRate;
-        uniforms[0].fuelConsumptionRate = settings.fuelConsumptionRate;
-        uniforms[0].wasteDepositRate = settings.wasteDepositRate;
-        uniforms[0].wasteConversionRate = settings.wasteConversionRate;
-        uniforms[0].efficiency = settings.efficiency;
+        uniforms[0].fuelLoadRate = settings.fuelLoadRate
+        uniforms[0].fuelConsumptionRate = settings.fuelConsumptionRate
+        uniforms[0].wasteDepositRate = settings.wasteDepositRate
+        uniforms[0].wasteConversionRate = settings.wasteConversionRate
+        uniforms[0].efficiency = settings.efficiency
         
-        uniforms[0].branchCount = settings.branchCount;
-        uniforms[0].branchScale = settings.branchScale;
+        uniforms[0].branchCount = settings.branchCount
+        uniforms[0].branchScale = settings.branchScale
+        
+        uniforms[0].touchPosition = touchPosition ?? [0, 0]
+        uniforms[0].isTouching = touchPosition != nil
         
         timeSinceLastResize += deltaTime
         
@@ -275,7 +283,7 @@ extension Renderer: MTKViewDelegate {
 //            sceneSize = simd_float2(height, height * aspect)
 //        }
         
-        let width: Float = 1080
+        let width: Float = 2000
         let aspect = Float(size.height / size.width)
         let sceneSize = simd_float2(width, width * aspect)
         
@@ -317,8 +325,12 @@ extension Renderer: MTKViewDelegate {
             let threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
             let w = agentInitPipelineState.threadExecutionWidth
             let threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
+            let threadgroupsPerGrid = MTLSize(width: (settings.agentCount + w - 1) / w, height: 1, depth: 1)
             
-            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+            dispatchThreadsWithAvailability(for: computeEncoder,
+                                            threadsPerGrid: threadsPerGrid,
+                                            threadgroupsPerGrid: threadgroupsPerGrid,
+                                            threadsPerThreadgroup: threadsPerGroup)
             
             computeEncoder.popDebugGroup()
             
@@ -333,8 +345,14 @@ extension Renderer: MTKViewDelegate {
             var w = slimePipelineState.threadExecutionWidth
             let h = slimePipelineState.maxTotalThreadsPerThreadgroup / w
             var threadsPerGroup = MTLSize(width: w, height: h, depth: 1)
-
-            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+            var threadgroupsPerGrid = MTLSize(width: (slimeTexture.width + w - 1) / w,
+                                              height: (slimeTexture.height + h - 1) / h,
+                                              depth: 1)
+            
+            dispatchThreadsWithAvailability(for: computeEncoder,
+                                            threadsPerGrid: threadsPerGrid,
+                                            threadgroupsPerGrid: threadgroupsPerGrid,
+                                            threadsPerThreadgroup: threadsPerGroup)
 
             computeEncoder.popDebugGroup()
             
@@ -344,8 +362,12 @@ extension Renderer: MTKViewDelegate {
             threadsPerGrid = MTLSize(width: settings.agentCount, height: 1, depth: 1)
             w = slimePipelineState.threadExecutionWidth
             threadsPerGroup = MTLSize(width: w, height: 1, depth: 1)
+            threadgroupsPerGrid = MTLSize(width: (settings.agentCount + w - 1) / w, height: 1, depth: 1)
             
-            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+            dispatchThreadsWithAvailability(for: computeEncoder,
+                                            threadsPerGrid: threadsPerGrid,
+                                            threadgroupsPerGrid: threadgroupsPerGrid,
+                                            threadsPerThreadgroup: threadsPerGroup)
             
             computeEncoder.popDebugGroup()
         }
@@ -382,5 +404,24 @@ extension Renderer: MTKViewDelegate {
         
         commandBuffer.present(drawable)
         commandBuffer.commit()
+    }
+    
+    private func dispatchThreadsWithAvailability(for computeEncoder: MTLComputeCommandEncoder,
+                                                 threadsPerGrid: MTLSize,
+                                                 threadgroupsPerGrid: MTLSize,
+                                                 threadsPerThreadgroup: MTLSize) {
+        if (device.supportsFamily(.common3)
+                || device.supportsFamily(.apple4)
+                || device.supportsFamily(.apple5)
+                || device.supportsFamily(.apple6)
+                || device.supportsFamily(.apple7)
+                || device.supportsFamily(.mac1)
+                || device.supportsFamily(.mac2)
+                || device.supportsFamily(.macCatalyst1)
+                || device.supportsFamily(.macCatalyst2)) {
+            computeEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+        } else {
+            computeEncoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+        }
     }
 }
